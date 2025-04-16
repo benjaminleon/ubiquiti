@@ -42,11 +42,5 @@ func Init(cfg config.DatabaseConfig) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	// Auto-migrate the schema
-	err = db.AutoMigrate(&Device{}, &DeviceStatus{})
-	if err != nil {
-		return nil, fmt.Errorf("failed to migrate database: %w", err)
-	}
-
 	return db, nil
 }
