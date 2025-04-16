@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/ben/ubiquiti-monitor/internal/config"
 	"github.com/ben/ubiquiti-monitor/internal/database"
@@ -14,6 +15,17 @@ type Server struct {
 	router *gin.Engine
 	db     *gorm.DB
 	config config.ServerConfig
+}
+
+// DeviceResponse represents the device data returned to the client
+type DeviceResponse struct {
+	IPAddress       string `json:"ip_address"`
+	DeviceType      string `json:"device_type"`
+	SerialNumber    string `json:"serial_number"`
+	HardwareVersion string `json:"hardware_version"`
+	SoftwareVersion string `json:"software_version"`
+	FirmwareVersion string `json:"firmware_version"`
+	TimeSinceSeen   string `json:"time_since_seen"`
 }
 
 func NewServer(cfg config.ServerConfig, db *gorm.DB) *Server {
@@ -36,9 +48,7 @@ func (s *Server) setupRoutes() {
 	{
 		devices.GET("/", s.listDevices)
 		devices.GET("/:id", s.getDevice)
-		devices.GET("/:id/status", s.getDeviceStatus)
 		devices.POST("/", s.createDevice)
-		devices.PUT("/:id", s.updateDevice)
 		devices.DELETE("/:id", s.deleteDevice)
 	}
 }
@@ -50,11 +60,33 @@ func (s *Server) Start() error {
 // Handler functions
 func (s *Server) listDevices(c *gin.Context) {
 	var devices []database.Device
-	if err := s.db.Find(&devices).Error; err != nil {
+	if err := s.db.
+		Where("id IN (?)",
+			s.db.Table("devices").
+				Select("MAX(id)").
+				Group("serial_number"),
+		).
+		Order("created_at DESC").
+		Find(&devices).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, devices)
+
+	// Convert devices to response format
+	responses := make([]DeviceResponse, len(devices))
+	for i, device := range devices {
+		responses[i] = DeviceResponse{
+			IPAddress:       device.IPAddress,
+			DeviceType:      device.DeviceType,
+			SerialNumber:    device.SerialNumber,
+			HardwareVersion: device.HardwareVersion,
+			SoftwareVersion: device.SoftwareVersion,
+			FirmwareVersion: device.FirmwareVersion,
+			TimeSinceSeen:   time.Since(device.CreatedAt).Round(time.Second).String(),
+		}
+	}
+
+	c.JSON(http.StatusOK, responses)
 }
 
 func (s *Server) getDevice(c *gin.Context) {
@@ -65,16 +97,6 @@ func (s *Server) getDevice(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, device)
-}
-
-func (s *Server) getDeviceStatus(c *gin.Context) {
-	id := c.Param("id")
-	var status []database.DeviceStatus
-	if err := s.db.Where("device_id = ?", id).Order("timestamp desc").Limit(10).Find(&status).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, status)
 }
 
 func (s *Server) createDevice(c *gin.Context) {
@@ -90,27 +112,6 @@ func (s *Server) createDevice(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, device)
-}
-
-func (s *Server) updateDevice(c *gin.Context) {
-	id := c.Param("id")
-	var device database.Device
-	if err := s.db.First(&device, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Device not found"})
-		return
-	}
-
-	if err := c.ShouldBindJSON(&device); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := s.db.Save(&device).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, device)
 }
 
 func (s *Server) deleteDevice(c *gin.Context) {

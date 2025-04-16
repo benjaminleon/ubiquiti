@@ -6,7 +6,6 @@ import (
 	"github.com/ben/ubiquiti-monitor/internal/api"
 	"github.com/ben/ubiquiti-monitor/internal/config"
 	"github.com/ben/ubiquiti-monitor/internal/database"
-	"github.com/ben/ubiquiti-monitor/internal/monitor"
 )
 
 func main() {
@@ -21,12 +20,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
-
-	// Initialize device monitor
-	deviceMonitor := monitor.NewDeviceMonitor(db)
-
-	// Start monitoring in the background
-	go deviceMonitor.Start()
 
 	// Initialize and start the API server
 	server := api.NewServer(cfg.Server, db)
