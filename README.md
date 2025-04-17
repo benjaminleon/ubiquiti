@@ -66,33 +66,7 @@ If you prefer to run the application with a local PostgreSQL database instead of
    - **Windows**: The installer will set up the service automatically
 
 3. Create the database and user:
-```bash
-
-# Connect to PostgreSQL
-psql postgres
-
-# Create the user with CREATEDB privilege
-CREATE USER ubiquiti WITH PASSWORD 'my_password' CREATEDB;
-
-# Create the database with the user as owner
-CREATE DATABASE ubiquiti_monitor OWNER ubiquiti;
-
-# Exit psql
-\q
-
-# Now connect as the ubiquiti user to the database
-psql -U ubiquiti -d ubiquiti_monitor
-
-# Once connected as ubiquiti, run these commands:
-GRANT ALL ON SCHEMA public TO ubiquiti;
-GRANT ALL ON ALL TABLES IN SCHEMA public TO ubiquiti;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO ubiquiti;
-GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO ubiquiti;
-
-# Make sure the user has the right to create tables
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ubiquiti;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ubiquiti;
-```
+```./setup_db.sh```
 
 #### Run the Application
 
@@ -134,11 +108,22 @@ curl -X POST localhost:8080/api/devices/ \
     "software_version": "1.12.22",
     "firmware_version": "1.0.0"
 }'
+
+curl -X POST localhost:8080/api/devices/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ip_address": "192.168.1.4",
+    "device_type": "secret door",
+    "serial_number": "2",
+    "hardware_version": "0.1",
+    "software_version": "1.2.3",
+    "firmware_version": "4.5.6"
+}'
 ```
 
 Example GET request:
 ```bash
 curl localhost:8080/api/devices/
-[{"ip_address":"192.168.1.3","device_type":"muffin","serial_number":"1","hardware_version":"1","software_version":"1.12.22","firmware_version":"1.0.0","time_since_seen":"26m29s"},{"ip_address":"192.168.1.3","device_type":"banana","serial_number":"2","hardware_version":"1","software_version":"1.12.22","firmware_version":"1.0.0","time_since_seen":"26m37s"}]
+[{"ip_address":"192.168.1.3","device_type":"muffin","serial_number":"1","hardware_version":"1","software_version":"1.12.22","firmware_version":"1.0.0","time_since_seen":"26m29s"},{"ip_address":"192.168.1.3","device_type":"banana","serial_number":"2","hardware_version":"1","software_version":"1.12.22","firmware_version":"1.0.0","time_since_seen":"2m37s"}]
 ```
 
