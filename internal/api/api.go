@@ -47,9 +47,7 @@ func (s *Server) setupRoutes() {
 	devices := s.router.Group("/api/devices")
 	{
 		devices.GET("/", s.listDevices)
-		devices.GET("/:id", s.getDevice)
 		devices.POST("/", s.createDevice)
-		devices.DELETE("/:id", s.deleteDevice)
 	}
 }
 
@@ -89,16 +87,6 @@ func (s *Server) listDevices(c *gin.Context) {
 	c.JSON(http.StatusOK, responses)
 }
 
-func (s *Server) getDevice(c *gin.Context) {
-	id := c.Param("id")
-	var device database.Device
-	if err := s.db.First(&device, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Device not found"})
-		return
-	}
-	c.JSON(http.StatusOK, device)
-}
-
 func (s *Server) createDevice(c *gin.Context) {
 	var device database.Device
 	if err := c.ShouldBindJSON(&device); err != nil {
@@ -112,13 +100,4 @@ func (s *Server) createDevice(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, device)
-}
-
-func (s *Server) deleteDevice(c *gin.Context) {
-	id := c.Param("id")
-	if err := s.db.Delete(&database.Device{}, id).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.Status(http.StatusNoContent)
 }

@@ -73,8 +73,4 @@ go run main.go
 ### Devices
 
 - `GET /api/devices` - List all devices
-- `GET /api/devices/:id` - Get device details
-- `GET /api/devices/:id/status` - Get device status history
 - `POST /api/devices` - Create a new device
-- `PUT /api/devices/:id` - Update device details
-- `DELETE /api/devices/:id` - Delete a device
