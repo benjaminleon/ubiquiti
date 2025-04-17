@@ -5,11 +5,11 @@ A Go-based service for monitoring Ubiquiti network devices (routers, switches, c
 ## Table of Contents
 
 - [Features](#features)
-- [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
-  - [Docker Setup](#docker-setup)
-  - [Local Development](#local-development)
-  - [Setting Up PostgreSQL](#setting-up-postgresql)
+  - [Run with Docker](#run-with-docker)
+  - [Run without Docker](#run-without-docker)
+    - [Setting Up PostgreSQL](#setting-up-postgresql)
+    - [Run the Application](#run-the-application)
 - [API Endpoints](#api-endpoints)
 
 ## Features
@@ -20,16 +20,6 @@ A Go-based service for monitoring Ubiquiti network devices (routers, switches, c
 - Device status history tracking
 - Support for various device types (routers, switches, cameras, door access systems)
 
-## Prerequisites
-
-### Runtime Requirements
-- Go 1.23.0 or later
-- PostgreSQL 12 or later (if not using Docker)
-- Docker and Docker Compose (if using containerized deployment)
-
-### Development Requirements
-- PostgreSQL client tools (if working with local database)
-
 ## Getting Started
 
 First, clone the repository:
@@ -38,7 +28,7 @@ git clone https://github.com/benjaminleon/ubiquiti-monitor.git
 cd ubiquiti-monitor
 ```
 
-### Docker Setup
+### Run with Docker
 
 The easiest way to run the application is using Docker Compose:
 
@@ -60,24 +50,10 @@ To stop the application:
 docker-compose down
 ```
 
-### Local Development
+### Run without Docker
 
-1. Install dependencies:
-```bash
-go mod download
-```
 
-2. Set up environment variables:
-```bash
-source .env
-```
-
-3. Run the application:
-```bash
-go run main.go
-```
-
-### Setting Up PostgreSQL
+#### Setting Up PostgreSQL
 
 If you prefer to run the application with a local PostgreSQL database instead of using Docker, follow these steps (only verified on mac): 
 
@@ -112,7 +88,26 @@ GRANT ALL PRIVILEGES ON SCHEMA public TO user;
 \q
 ```
 
-Now you can run the application locally with `go run main.go` and it will connect to your local PostgreSQL database.
+#### Run the Application
+
+1. Install dependencies:
+```bash
+go mod download
+```
+
+2. Set up environment variables:
+The environment variables need to be exported. Do something like:
+```bash
+set -a
+source .env
+set +a
+```
+
+3. Run the application:
+```bash
+go run main.go
+```
+
 
 ## API Endpoints
 
