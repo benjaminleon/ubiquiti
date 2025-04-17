@@ -51,11 +51,9 @@ docker-compose down
 ```
 
 ### Run without Docker
-
+If you prefer to run the application with a local PostgreSQL database instead of using Docker, follow these steps (only verified on mac):
 
 #### Setting Up PostgreSQL
-
-If you prefer to run the application with a local PostgreSQL database instead of using Docker, follow these steps (only verified on mac): 
 
 1. Install PostgreSQL on your system:
    - **macOS**: `brew install postgresql`
