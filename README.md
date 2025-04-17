@@ -2,6 +2,16 @@
 
 A Go-based service for monitoring Ubiquiti network devices (routers, switches, cameras, door access systems) and providing REST API access to device status and diagnostics.
 
+## Table of Contents
+
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+  - [Docker Setup](#docker-setup)
+  - [Local Development](#local-development)
+  - [Setting Up PostgreSQL](#setting-up-postgresql)
+- [API Endpoints](#api-endpoints)
+
 ## Features
 
 - Device status monitoring
@@ -12,18 +22,27 @@ A Go-based service for monitoring Ubiquiti network devices (routers, switches, c
 
 ## Prerequisites
 
-- Go 1.24.2 or later (for local development)
-- Docker and Docker Compose (for containerized deployment)
+### Runtime Requirements
+- Go 1.23.0 or later
+- PostgreSQL 12 or later (if not using Docker)
+- Docker and Docker Compose (if using containerized deployment)
 
-## Quick Start with Docker
+### Development Requirements
+- PostgreSQL client tools (if working with local database)
+
+## Getting Started
+
+First, clone the repository:
+```bash
+git clone https://github.com/benjaminleon/ubiquiti-monitor.git
+cd ubiquiti-monitor
+```
+
+### Docker Setup
 
 The easiest way to run the application is using Docker Compose:
 
 ```bash
-# Clone the repository
-git clone https://github.com/ben/ubiquiti-monitor.git
-cd ubiquiti-monitor
-
 # Start the application and database
 docker compose up --build
 ```
@@ -41,36 +60,82 @@ To stop the application:
 docker-compose down
 ```
 
-## Local Development
+### Local Development
 
-1. Clone the repository:
-```bash
-git clone https://github.com/ben/ubiquiti-monitor.git
-cd ubiquiti-monitor
-```
-
-2. Install dependencies:
+1. Install dependencies:
 ```bash
 go mod download
 ```
 
-3. Set up environment variables:
+2. Set up environment variables:
 ```bash
-export DB_HOST=localhost
-export DB_PORT=5432
-export DB_USER=postgres
-export DB_PASSWORD=your_password
-export DB_NAME=ubiquiti_monitor
+source .env
 ```
 
-4. Run the application:
+3. Run the application:
 ```bash
 go run main.go
 ```
+
+### Setting Up PostgreSQL
+
+If you prefer to run the application with a local PostgreSQL database instead of using Docker, follow these steps (only verified on mac): 
+
+1. Install PostgreSQL on your system:
+   - **macOS**: `brew install postgresql`
+   - **Ubuntu/Debian**: `sudo apt-get install postgresql`
+   - **Windows**: Download from [PostgreSQL website](https://www.postgresql.org/download/windows/)
+
+2. Start the PostgreSQL service:
+   - **macOS**: `brew services start postgresql`
+   - **Ubuntu/Debian**: `sudo service postgresql start`
+   - **Windows**: The installer will set up the service automatically
+
+3. Create the database and user:
+```bash
+# Connect to PostgreSQL
+psql postgres
+
+# Create the database
+CREATE DATABASE ubiquiti_monitor;
+
+# Create the user (replace 'ubiquity' and 'my_password' with your values from .env)
+CREATE USER ubiquity WITH PASSWORD 'my_password';
+
+# Grant all necessary permissions
+GRANT ALL PRIVILEGES ON DATABASE ubiquiti_monitor TO ubiquity;
+GRANT ALL PRIVILEGES ON SCHEMA public TO ubiquity;
+
+# Exit psql
+\q
+```
+
+Now you can run the application locally with `go run main.go` and it will connect to your local PostgreSQL database.
 
 ## API Endpoints
 
 ### Devices
 
-- `GET /api/devices` - List all devices
-- `POST /api/devices` - Create a new device
+- `GET /api/devices` - List all devices, returning the latest status update for each unique device (identified by serial number). The `time_since_seen` field indicates how long it has been since each device's last status update, and will continue to grow if a device stops sending updates.
+- `POST /api/devices` - Creates a new device info entry
+
+Example POST request:
+```bash
+curl -X POST localhost:8080/api/devices/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ip_address": "192.168.1.3",
+    "device_type": "camera",
+    "serial_number": "1",
+    "hardware_version": "1",
+    "software_version": "1.12.22",
+    "firmware_version": "1.0.0"
+}'
+```
+
+Example GET request:
+```bash
+curl localhost:8080/api/devices/
+[{"ip_address":"192.168.1.3","device_type":"muffin","serial_number":"1","hardware_version":"1","software_version":"1.12.22","firmware_version":"1.0.0","time_since_seen":"26m29s"},{"ip_address":"192.168.1.3","device_type":"banana","serial_number":"2","hardware_version":"1","software_version":"1.12.22","firmware_version":"1.0.0","time_since_seen":"26m37s"}]
+```
+

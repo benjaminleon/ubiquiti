@@ -1,14 +1,14 @@
 package config
 
 import (
+	"fmt"
 	"os"
-	"time"
+	"strconv"
 )
 
 type Config struct {
 	Server   ServerConfig   `json:"server"`
 	Database DatabaseConfig `json:"database"`
-	Monitor  MonitorConfig  `json:"monitor"`
 }
 
 type ServerConfig struct {
@@ -23,35 +23,37 @@ type DatabaseConfig struct {
 	DBName   string `json:"dbname"`
 }
 
-type MonitorConfig struct {
-	CheckInterval time.Duration `json:"check_interval"`
-	Timeout       time.Duration `json:"timeout"`
-}
-
 func Load() (*Config, error) {
-	// For now, return a default configuration
-	// In a real application, you would load this from a config file or environment variables
+	// Debug: Print all environment variables
+
+	port, err := strconv.Atoi(getRequiredEnv("SERVER_PORT"))
+	if err != nil {
+		return nil, err
+	}
+
+	dbPort, err := strconv.Atoi(getRequiredEnv("DB_PORT"))
+	if err != nil {
+		return nil, err
+	}
+
 	return &Config{
 		Server: ServerConfig{
-			Port: 8080,
+			Port: port,
 		},
 		Database: DatabaseConfig{
-			Host:     getEnvOrDefault("DB_HOST", "localhost"),
-			Port:     5432,
-			User:     getEnvOrDefault("DB_USER", "postgres"),
-			Password: getEnvOrDefault("DB_PASSWORD", "postgres"),
-			DBName:   getEnvOrDefault("DB_NAME", "ubiquiti_monitor"),
-		},
-		Monitor: MonitorConfig{
-			CheckInterval: 5 * time.Minute,
-			Timeout:       30 * time.Second,
+			Host:     getRequiredEnv("DB_HOST"),
+			Port:     dbPort,
+			User:     getRequiredEnv("DB_USER"),
+			Password: getRequiredEnv("DB_PASSWORD"),
+			DBName:   getRequiredEnv("DB_NAME"),
 		},
 	}, nil
 }
 
-func getEnvOrDefault(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
+func getRequiredEnv(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		panic(fmt.Sprintf("required environment variable %s is not set (value was empty)", key))
 	}
-	return defaultValue
+	return value
 }
