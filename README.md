@@ -69,23 +69,31 @@ If you prefer to run the application with a local PostgreSQL database instead of
 
 3. Create the database and user:
 ```bash
+
 # Connect to PostgreSQL
 psql postgres
 
-# Replace 'db_name', 'user' and 'my_password' with your values from .env
+# Create the user with CREATEDB privilege
+CREATE USER ubiquiti WITH PASSWORD 'my_password' CREATEDB;
 
-# Create the database
-CREATE DATABASE db_name;
-
-# Create the user
-CREATE USER user WITH PASSWORD 'my_password';
-
-# Grant all necessary permissions
-GRANT ALL PRIVILEGES ON DATABASE db_name TO user;
-GRANT ALL PRIVILEGES ON SCHEMA public TO user;
+# Create the database with the user as owner
+CREATE DATABASE ubiquiti_monitor OWNER ubiquiti;
 
 # Exit psql
 \q
+
+# Now connect as the ubiquiti user to the database
+psql -U ubiquiti -d ubiquiti_monitor
+
+# Once connected as ubiquiti, run these commands:
+GRANT ALL ON SCHEMA public TO ubiquiti;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO ubiquiti;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO ubiquiti;
+GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO ubiquiti;
+
+# Make sure the user has the right to create tables
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ubiquiti;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ubiquiti;
 ```
 
 #### Run the Application
