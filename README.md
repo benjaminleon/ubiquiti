@@ -14,7 +14,6 @@ A Go-based service for monitoring Ubiquiti network devices (routers, switches, c
 
 - Go 1.24.2 or later (for local development)
 - Docker and Docker Compose (for containerized deployment)
-- Network access to monitored devices
 
 ## Quick Start with Docker
 
@@ -26,7 +25,7 @@ git clone https://github.com/ben/ubiquiti-monitor.git
 cd ubiquiti-monitor
 
 # Start the application and database
-docker-compose up -d
+docker compose up --build
 ```
 
 This will:
@@ -79,37 +78,3 @@ go run main.go
 - `POST /api/devices` - Create a new device
 - `PUT /api/devices/:id` - Update device details
 - `DELETE /api/devices/:id` - Delete a device
-
-## Database Schema
-
-### Device
-- ID (Primary Key)
-- IP Address
-- Hostname
-- Device Type
-- Model
-- Serial Number
-- Hardware Version
-- Software Version
-- Firmware Version
-- Status
-- Last Seen
-- Created At
-- Updated At
-
-### Device Status
-- ID (Primary Key)
-- Device ID (Foreign Key)
-- Status
-- Timestamp
-- Details
-
-## Configuration
-
-The application can be configured through environment variables:
-
-- `DB_HOST`: Database host (default: localhost)
-- `DB_PORT`: Database port (default: 5432)
-- `DB_USER`: Database user (default: postgres)
-- `DB_PASSWORD`: Database password
-- `DB_NAME`: Database name (default: ubiquiti_monitor)
