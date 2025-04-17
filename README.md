@@ -96,15 +96,17 @@ If you prefer to run the application with a local PostgreSQL database instead of
 # Connect to PostgreSQL
 psql postgres
 
-# Create the database
-CREATE DATABASE ubiquiti_monitor;
+# Replace 'db_name', 'user' and 'my_password' with your values from .env
 
-# Create the user (replace 'ubiquity' and 'my_password' with your values from .env)
-CREATE USER ubiquity WITH PASSWORD 'my_password';
+# Create the database
+CREATE DATABASE db_name;
+
+# Create the user
+CREATE USER user WITH PASSWORD 'my_password';
 
 # Grant all necessary permissions
-GRANT ALL PRIVILEGES ON DATABASE ubiquiti_monitor TO ubiquity;
-GRANT ALL PRIVILEGES ON SCHEMA public TO ubiquity;
+GRANT ALL PRIVILEGES ON DATABASE db_name TO user;
+GRANT ALL PRIVILEGES ON SCHEMA public TO user;
 
 # Exit psql
 \q
