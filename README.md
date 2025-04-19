@@ -28,6 +28,15 @@ git clone https://github.com/benjaminleon/ubiquiti-monitor.git
 cd ubiquiti-monitor
 ```
 
+Then, set up environment variables:
+The environment variables need to be exported. Do something like:
+```bash
+set -a
+source .env
+set +a
+```
+
+
 ### Run with Docker
 
 The easiest way to run the application is using Docker Compose:
@@ -56,12 +65,12 @@ If you prefer to run the application with a local PostgreSQL database instead of
 #### Setting Up PostgreSQL
 
 1. Install PostgreSQL on your system:
-   - **macOS**: `brew install postgresql`
+   - **macOS**: `brew install postgresql` or similar. Verified with `brew install postgresql@17`
    - **Ubuntu/Debian**: `sudo apt-get install postgresql`
    - **Windows**: Download from [PostgreSQL website](https://www.postgresql.org/download/windows/)
 
 2. Start the PostgreSQL service:
-   - **macOS**: `brew services start postgresql`
+   - **macOS**: `brew services start postgresql` or similar. Verified with brew services start postgresql@17`
    - **Ubuntu/Debian**: `sudo service postgresql start`
    - **Windows**: The installer will set up the service automatically
 
@@ -70,20 +79,6 @@ If you prefer to run the application with a local PostgreSQL database instead of
 
 #### Run the Application
 
-1. Install dependencies:
-```bash
-go mod download
-```
-
-2. Set up environment variables:
-The environment variables need to be exported. Do something like:
-```bash
-set -a
-source .env
-set +a
-```
-
-3. Run the application:
 ```bash
 go run main.go
 ```
