@@ -70,7 +70,7 @@ If you prefer to run the application with a local PostgreSQL database instead of
    - **Windows**: Download from [PostgreSQL website](https://www.postgresql.org/download/windows/)
 
 2. Start the PostgreSQL service:
-   - **macOS**: `brew services start postgresql` or similar. Verified with brew services start postgresql@17`
+   - **macOS**: `brew services start postgresql` or similar. Verified with `brew services start postgresql@17`
    - **Ubuntu/Debian**: `sudo service postgresql start`
    - **Windows**: The installer will set up the service automatically
 
@@ -108,7 +108,7 @@ curl -X POST localhost:8080/api/devices/ \
   -H "Content-Type: application/json" \
   -d '{
     "ip_address": "192.168.1.4",
-    "device_type": "secret door",
+    "device_type": "switch",
     "serial_number": "2",
     "hardware_version": "0.1",
     "software_version": "1.2.3",
@@ -119,6 +119,6 @@ curl -X POST localhost:8080/api/devices/ \
 Example GET request:
 ```bash
 curl localhost:8080/api/devices/
-[{"ip_address":"192.168.1.3","device_type":"muffin","serial_number":"1","hardware_version":"1","software_version":"1.12.22","firmware_version":"1.0.0","time_since_seen":"26m29s"},{"ip_address":"192.168.1.3","device_type":"banana","serial_number":"2","hardware_version":"1","software_version":"1.12.22","firmware_version":"1.0.0","time_since_seen":"2m37s"}]
+[{"ip_address":"192.168.1.3","device_type":"camera","serial_number":"1","hardware_version":"1","software_version":"1.12.22","firmware_version":"1.0.0","time_since_seen":"26m29s"},{"ip_address":"192.168.1.4","device_type":"switch","serial_number":"2","hardware_version":"1","software_version":"1.12.22","firmware_version":"1.0.0","time_since_seen":"2m37s"}]
 ```
 
