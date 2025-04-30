@@ -24,8 +24,8 @@ A Go-based service for monitoring Ubiquiti network devices (routers, switches, c
 
 First, clone the repository:
 ```bash
-git clone https://github.com/benjaminleon/ubiquiti-monitor.git
-cd ubiquiti-monitor
+git clone https://github.com/benjaminleon/ubiquiti.git
+cd ubiquiti
 ```
 
 Then, set up environment variables:
