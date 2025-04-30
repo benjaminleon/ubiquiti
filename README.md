@@ -56,7 +56,7 @@ The application will be available at `http://localhost:8080`
 
 To stop the application:
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ### Run without Docker
